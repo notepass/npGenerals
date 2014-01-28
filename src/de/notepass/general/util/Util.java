@@ -229,6 +229,7 @@ public class Util implements Serializable {
     public static String translate(String id) {
         String langFile = readConfig("langFile");
         try {
+            /*
             //Reads the Translation
             String worker = Util.nodeListToString(Util.executeXPath(InternalConfigDummy.LANG_ROOT +"/"+langFile,"/lang/"+id+"/text()"));
             worker = worker.replaceAll(Pattern.quote("\\r"),"\r");
@@ -239,6 +240,23 @@ public class Util implements Serializable {
             Log.logWarning("Couldn't translate text with ID "+id+"... This is normaly an error in the language-file...");
         }
         return "Couldn't translate Text. See debug-console or log-file for details";
+        */
+            Properties properties = new Properties();
+            FileInputStream fis = new FileInputStream(new File(InternalConfigDummy.LANG_ROOT+"/"+langFile));
+            properties.load(fis);
+            String translatedText = properties.getProperty(id);
+            if (translatedText != null) {
+                return translatedText;
+            } else {
+                Log.logWarning("Couldn't translate text with ID " + id + "... This is normally an error in the language-file...");
+                return "Text translation error";
+            }
+        } catch (Exception e) {
+            Log.logError(e);
+            Log.logWarning("Couldn't translate text with ID " + id + "... This is normally an error in the language-file...");
+            return "Text translation error";
+        }
+
     }
 
     /**
