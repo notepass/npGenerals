@@ -9,19 +9,19 @@ public class DynamicCache {
     /**
      * <p>Variable to save the given Objects</p>
      */
-    private ArrayList<Object> content = new ArrayList<>();
+    private ArrayList<Object> content = new ArrayList<Object>();
 
     /**
      * <p>Variable to save the given Classes</p>
      */
-    private ArrayList<Class> classType = new ArrayList<>();
+    private ArrayList<Class> classType = new ArrayList<Class>();
 
     /**
      * <p>Variable to save the index information. The Object Array consists of two Variables:</br>
      * [0] = String-ID</br>
      * [1] = Numeric-ID (Used to read the content from the previous ArrayLists)</p>
      */
-    private ArrayList<Object[]> indexList = new ArrayList<>();
+    private ArrayList<Object[]> indexList = new ArrayList<Object[]>();
 
     /**
      * <p>Adds an Item to the Cache with a randomly generated
@@ -103,7 +103,7 @@ public class DynamicCache {
         int targetIndex = -1;
         for (int i=0;i<indexList.size();i++) {
             if (indexList.get(i)[0].toString().equals(stringIndex)) {
-                targetIndex = (int) indexList.get(i)[1];
+                targetIndex = (Integer) indexList.get(i)[1];
             }
         }
         return targetIndex;

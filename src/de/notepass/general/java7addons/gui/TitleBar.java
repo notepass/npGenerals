@@ -1,4 +1,4 @@
-package de.notepass.general.objects.gui;
+package de.notepass.general.java7addons.gui;
 
 import de.notepass.general.internalConfig.InternalConfigDummy;
 import de.notepass.general.util.Util;

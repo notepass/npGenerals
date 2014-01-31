@@ -1,7 +1,7 @@
 package de.notepass.general.util;
 
 import de.notepass.general.logger.Log;
-import de.notepass.general.objects.gui.GroupBox;
+//import de.notepass.general.objects.gui.GroupBox;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -579,7 +579,7 @@ public class Util implements Serializable {
      */
     //Formats a load String so it is valid
     public static String createLoadString(String path) {
-        URL url = GroupBox.class.getResource(path);
+        URL url = Util.class.getResource(path);
         return url.toExternalForm();
     }
 
