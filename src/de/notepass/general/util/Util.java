@@ -44,7 +44,7 @@ public class Util implements Serializable {
 
     /**
      * <p>This method can read a specified config-node</p>
-     * @param node
+     * @param node Name of the node to read
      * @return Config-node
      */
     //This function can read the Config-File of the program
@@ -65,9 +65,9 @@ public class Util implements Serializable {
     /**
      * <p>This method generates the node list
      * matching to a XPath-Expression.
-     * Hint: Use the nodeListToString-method to get the String value</p>
-     * @param filepath
-     * @param xpath_exp
+     * Hint: Use the {@link #nodeListToString(org.w3c.dom.NodeList)}-method to get the String value</p>
+     * @param sourcefile Path to the XML-File
+     * @param xpath_exp XPath to execute
      * @return All matches nodes
      * @throws ParserConfigurationException
      * @throws IOException
@@ -75,12 +75,12 @@ public class Util implements Serializable {
      * @throws XPathExpressionException
      */
     //This function executes a XPath-Statement (From a file)
-    public static NodeList executeXPath(String filepath, String xpath_exp) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+    public static NodeList executeXPath(File sourcefile, String xpath_exp) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         //This Function will execute an XPath Expression
         DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         //This Loads the File...
-        Document doc = builder.parse(filepath);
+        Document doc = builder.parse(sourcefile);
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
         //... and this will execute the XPath
@@ -92,30 +92,10 @@ public class Util implements Serializable {
     }
 
     /**
-     * <p>This function executes an XPath on multible files
-     * WARNING: This function doesn't work right</p>
-     * @param filepath
-     * @param xpath_exp
-     * @return
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws XPathExpressionException
-     * @throws IOException
-     */
-    public static String [] executeXPath(String [] filepath, String xpath_exp) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
-        @Deprecated
-        String [] worker = new String[filepath.length];
-        for (int i=0;i<filepath.length;i++) {
-            worker[i]=nodeListToString(executeXPath(filepath[i], xpath_exp));
-        }
-        return worker;
-    }
-
-    /**
      * <p>This function grabs the nodeList of a previous XPath execute
      * and executes another XPath on it</p>
-     * @param nl
-     * @param xpath_exp
+     * @param nl Node list to use
+     * @param xpath_exp XPath-Expression to execute
      * @return XPath expression nodeList
      * @throws ParserConfigurationException
      * @throws IOException
@@ -135,14 +115,14 @@ public class Util implements Serializable {
     }
 
     /**
-     * <p>This converts a XPath to a String</p>
-     * @param nodeList
+     * <p>This converts a XPath to a String<br>
+     * Please note: This function will return ALL matches as a single String! If you don't want this, please use {@link #nodeListToStringArray(org.w3c.dom.NodeList)}</p>
+     * @param nodeList Node List to convert
      * @return String equivalent of nodeList
      */
     //This function converts an NodeList to a String
-    @Deprecated
     public static String nodeListToString(NodeList nodeList) {
-        String result = new String();
+        String result = "";
         //Read every Node and put it into the String
         for (int i = 0; i < nodeList.getLength(); i++) {
             result = result + nodeList.item(i).getNodeValue();
@@ -165,63 +145,74 @@ public class Util implements Serializable {
     }
 
     /**
-     * <p>Checks if a file exists.
-     * You can also use new File(String file).exists</p>
-     * @param file
-     * @return boolean
-     */
-    //Checks if a file exists
-    public static boolean exist(String file) {
-        File f = new File(file);
-        return f.exists();
-    }
-
-    /**
      * <p>This function lists all FILES in a folder
      * No folders are listed (Difference to the list function of File)</p>
-     * @param path
-     * @return List of Files
+     * @param path Folder to search trough
+     * @return File[] - List of Files
      */
     //List all Files in a given folder
-    public static String[] listFiles(String path)
+    public static File[] listFiles(File path)
     {
-        String files;
-        File dir = new File(path);
-        File[] files1 = dir.listFiles();
-
-        String [] filesList = new String[files1.length];
-
-        for (int i = 0; i < files1.length; i++) {
-            if (files1[i].isFile()) {
-                filesList[i] = files1[i].getName();
+        ArrayList<File> foundFiles = new ArrayList<File>();
+        File[] fileList = path.listFiles();
+        if (fileList != null) {
+            for (File scopeFile:fileList) {
+                if (scopeFile.isFile()) {
+                    foundFiles.add(scopeFile);
+                }
             }
         }
+        return foundFiles.toArray(new File[foundFiles.size()]);
+    }
 
-        return filesList;
+
+    /**
+     * <p>This function lists all FOLDERS in a folder
+     * No files are listed (Difference to the list function of File)</p>
+     * @param path Folder to search trough
+     * @return File[] - List of Folders
+     */
+    //List all folders in a given folder
+    public static File[] listDirectorys(File path)
+    {
+        ArrayList<File> foundFiles = new ArrayList<File>();
+        File[] fileList = path.listFiles();
+        if (fileList != null) {
+            for (File scopeFile:fileList) {
+                if (scopeFile.isDirectory()) {
+                    foundFiles.add(scopeFile);
+                }
+            }
+        }
+        return foundFiles.toArray(new File[foundFiles.size()]);
     }
 
     /**
      * <p>This method will delete the extension from a file name</p>
-     * @param str
+     * @param str Filename with fileextension
      * @return File name without extension
      */
     //Deletes the File-Extension of a Filename
     public static String deleteFileExtension(String str) {
         int lastIndex = str.toLowerCase().lastIndexOf(".");
-        char [] charArray = new char[str.length()];
-        charArray = str.toCharArray();
-        String ret = "";
-        for (int i=0;i<lastIndex;i++) {
-            ret = ret + charArray[i];
+        if (lastIndex > 0) {
+            char [] charArray;
+            charArray = str.toCharArray();
+            String ret = "";
+            for (int i=0;i<lastIndex;i++) {
+                ret = ret + charArray[i];
+            }
+            return ret;
+        } else {
+            return str;
         }
-        return ret;
     }
 
     /**
      * <p>This method translates a text.
      * It needs the ID of the text to translate.
      * Normally there are many more of these methods, specialised for the class</p>
-     * @param id
+     * @param id Name iof the text to translate
      * @return Translated text
      */
     //The raw translate routine. This is more an "abstract" routine. There are specialised methods in some classes (Mostly for replacing local variables)
@@ -229,18 +220,6 @@ public class Util implements Serializable {
     public static String translate(String id) {
         String langFile = readConfig("langFile");
         try {
-            /*
-            //Reads the Translation
-            String worker = Util.nodeListToString(Util.executeXPath(InternalConfigDummy.LANG_ROOT +"/"+langFile,"/lang/"+id+"/text()"));
-            worker = worker.replaceAll(Pattern.quote("\\r"),"\r");
-            worker = worker.replaceAll(Pattern.quote("\\n"),"\n");
-            return worker;
-        } catch (Exception e) {
-            Log.logError(e);
-            Log.logWarning("Couldn't translate text with ID "+id+"... This is normaly an error in the language-file...");
-        }
-        return "Couldn't translate Text. See debug-console or log-file for details";
-        */
             Properties properties = new Properties();
             FileInputStream fis = new FileInputStream(new File(InternalConfigDummy.LANG_ROOT+"/"+langFile));
             properties.load(fis);
@@ -261,13 +240,12 @@ public class Util implements Serializable {
 
     /**
      * <p>Saves an Object to a file (can only be used on serializable Objects)</p>
-     * @param saveObject
-     * @param path
+     * @param saveObject Object to save
+     * @param path Path to save the Object to
      * @throws IOException
      */
-    //Saves an Object to a file (Should just be used in Cases were you can't save a File as XML [Reason for Deprecated status])
-    public static void saveObject(Object saveObject, String path) throws IOException {
-        @Deprecated
+    //Saves an Object to a file
+    public static void saveObject(Object saveObject, File path) throws IOException {
   	    ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(path,false));
         o.writeObject(saveObject);
         o.close();
@@ -275,14 +253,13 @@ public class Util implements Serializable {
 
     /**
      * <p>Loads an Object from a file (You need to know the type yourself)</p>
-     * @param path
-     * @return
+     * @param path Path to load the Object from
+     * @return Object - The loaded object
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    //Loads an Object from a file (Should just be used in Cases were you can't save a File as XML [Reason for Deprecated status])
-    public static Object loadObject(String path) throws IOException, ClassNotFoundException {
-        @Deprecated
+    //Loads an Object from a file
+    public static Object loadObject(File path) throws IOException, ClassNotFoundException {
         ObjectInputStream o = new ObjectInputStream(new FileInputStream(path));
         Object result = o.readObject();
         o.close();
@@ -291,8 +268,8 @@ public class Util implements Serializable {
 
     /**
      * <p>Executes a RegEx statement on a string</p>
-     * @param source
-     * @param regEx
+     * @param source The source String
+     * @param regEx RegEx to execute
      * @return RegEx manipulated String
      */
     //Function to execute RegEx, gives back the first String that matches the RegEx
@@ -309,17 +286,16 @@ public class Util implements Serializable {
 
     /**
      * <p>Reads the content of a Text-File to a String</p>
-     * @param pathname
+     * @param pathname Path to the textfile
      * @return Content of textfile
      * @throws IOException
      */
     //Reads a Text-File and converts it to a String
-    public static String textFileToString(String pathname) throws IOException {
+    public static String textFileToString(File pathname) throws IOException {
 
-        File file = new File(pathname);
-        StringBuilder fileContents = new StringBuilder((int)file.length());
-        Scanner scanner = new Scanner(file);
-        String lineSeparator = System.getProperty("line.separator");
+        StringBuilder fileContents = new StringBuilder((int)pathname.length());
+        Scanner scanner = new Scanner(pathname);
+        String lineSeparator = getLineSeparator();
 
         try {
             while(scanner.hasNextLine()) {
@@ -333,7 +309,7 @@ public class Util implements Serializable {
 
     /**
      * <p>Executes a command as a Shell-Command</p>
-     * @param command
+     * @param command Command to execute
      * @throws IOException
      * @throws InterruptedException
      */
@@ -345,12 +321,12 @@ public class Util implements Serializable {
 
     /**
      * <p>Saves the content of a String as Textfile</p>
-     * @param file
-     * @param string
+     * @param file File to save to
+     * @param string String to save
      * @throws FileNotFoundException
      */
     //Saves a String as Textfile
-    public static void stringToTextfile(String file, String string) throws FileNotFoundException {
+    public static void stringToTextfile(File file, String string) throws FileNotFoundException {
         PrintStream out = null;
         out = new PrintStream(new FileOutputStream(file));
         out.print(string);
@@ -359,18 +335,18 @@ public class Util implements Serializable {
 
     /**
      * <p>Opens a file with it's registerted application</p>
-     * @param file
+     * @param file File to open
      * @throws IOException
      */
     //opens a file with it's associated application
-    public static void openWithStandartApp(String file) throws IOException {
-        Desktop.getDesktop().open(new File(file));
+    public static void openWithStandartApp(File file) throws IOException {
+        Desktop.getDesktop().open(file);
     }
 
     /**
      * <p>Shows a standard error-dialog</p>
-     * @param text
-     * @param title
+     * @param text Text to show
+     * @param title Title to show
      */
     //Shows an Error Message
     public static void showError(String text, String title) {
@@ -379,7 +355,7 @@ public class Util implements Serializable {
 
     /**
      * <p>Shows a standard error-dialog</p>
-     * @param text
+     * @param text Text to show
      */
     //Shows an Error Message
     public static void showError(String text) {
@@ -388,8 +364,8 @@ public class Util implements Serializable {
 
     /**
      * <p>Shows a standard error-dialog</p>
-     * @param e
-     * @param title
+     * @param e Exception to use
+     * @param title Title of the window
      */
     public static void showError(Exception e, String title) {
         showError(exceptionToString(e),title);
@@ -397,7 +373,7 @@ public class Util implements Serializable {
 
     /**
      * <p>Shows a standard error-dialog</p>
-     * @param e
+     * @param e Exception to use
      */
     public static void showError(Exception e) {
         showError(e,translate("stdErrorTitle"));
@@ -405,8 +381,8 @@ public class Util implements Serializable {
 
     /**
      * <p>Shows a plain error-dialog (No external Stuff will be read, just for emergency purpose)</p>
-     * @param text
-     * @param title
+     * @param text Text to show
+     * @param title Title of the window
      */
     //This method shows only the given message (Only used when there is an initialisation error)
     public static void showPureError(String text, String title) {
@@ -415,7 +391,7 @@ public class Util implements Serializable {
 
     /**
      * <p>Shows a plain error-dialog (No external Stuff will be read, just for emergency purpose)</p>
-     * @param text
+     * @param text Text to show
      */
     public static void showPureError(String text) {
         showPureError(text,"Fatal Error");
@@ -423,7 +399,7 @@ public class Util implements Serializable {
 
     /**
      * <p>Translates a error to a String</p>
-     * @param e
+     * @param e Exception to use
      * @return Error-String (Stacktrace)
      */
     public static String exceptionToString(Exception e) {
@@ -435,8 +411,8 @@ public class Util implements Serializable {
 
     /**
      * <p>Shows a standard warning-dialog</p>
-     * @param text
-     * @param title
+     * @param text Text to show
+     * @param title Title of the window
      */
     public static void showWarning(String text, String title) {
         JOptionPane.showMessageDialog(new Frame(),translate("stdWarnPrefix")+text+translate("stdWarnSuffix"), title,JOptionPane.WARNING_MESSAGE);
@@ -444,8 +420,8 @@ public class Util implements Serializable {
 
     /**
      * <p>Shows a standard info-dialog</p>
-     * @param text
-     * @param title
+     * @param text Text to show
+     * @param title Title of the window
      */
     public static void showInfo(String text, String title) {
         JOptionPane.showMessageDialog(new Frame(),translate("stdInfoPrefix")+text+translate("stdInfoSuffix"), title,JOptionPane.INFORMATION_MESSAGE);
@@ -453,8 +429,8 @@ public class Util implements Serializable {
 
     /**
      * <p>Shows a info-dialog without prefix and duffix</p>
-     * @param text
-     * @param title
+     * @param text Text to show
+     * @param title Title of the window
      */
     public static void showPureInfo(String text, String title) {
         JOptionPane.showMessageDialog(new Frame(),text, title,JOptionPane.INFORMATION_MESSAGE);
@@ -462,11 +438,11 @@ public class Util implements Serializable {
 
     /**
      * <p>Executes a method from a external jar</p>
-     * @param AjarFile
-     * @param sourceClass
-     * @param method
-     * @param parameterTypes
-     * @param args
+     * @param AjarFile Jar-File from that the code should be excuted
+     * @param sourceClass Class from which the code should be executed
+     * @param method Execution method
+     * @param parameterTypes List of classes to use for the call
+     * @param args Value of the parameters
      * @return Return of method
      * @throws IOException
      * @throws ClassNotFoundException
@@ -502,80 +478,47 @@ public class Util implements Serializable {
         return null;
     }
 
-    /**
-     * <p>Older version of textfileToString</p>
-     * @param pathname
-     * @return
-     * @throws IOException
-     */
-    public static String readTextFile(String pathname) throws IOException {
-        @Deprecated
-        File file = new File(pathname);
-        StringBuilder fileContents = new StringBuilder();
-        Scanner scanner = new Scanner(file);
-        String lineSeparator = Util.getLineSeparator();
-
-        try {
-            while(scanner.hasNextLine()) {
-                fileContents.append(scanner.nextLine() + lineSeparator);
-            }
-            return fileContents.toString();
-        } finally {
-            scanner.close();
-        }
-    }
-
-    /**
-     * <p>An older version of stringToTextfile</p>
-     * @param content
-     * @param target
-     * @param append
-     * @throws IOException
-     */
-    public static void writeTextFile(String content, File target, boolean append) throws IOException {
-        @Deprecated
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter( new FileWriter(target.getAbsolutePath(),append));
-            writer.write(content);
-        }
-        finally
-        {
-            if ( writer != null)
-                writer.close( );
-        }
-    }
-
     public static Locale getLocale() {
         return Locale.getDefault();
     }
 
     /**
      * <p>Resolves an XPath value to a File (eg.: Value: EUR, XPath: /currency/ISO4217, Search Folder: data/currnecy) would resolve to euro.xml</p>
-     * @param xpath
-     * @param value
-     * @param searchFolder
-     * @return Matching File
+     * @param xpath Xpath to use
+     * @param value Value it has to match
+     * @param searchFolder Folder to search in
+     * @param recursive Decide if wether or not the function should be executed recursively
+     * @return File[] - Matching Files
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws XPathExpressionException
      * @throws IOException
      */
     //Resolves an XPath value to a File (eg.: Value: EUR, XPath: /currency/ISO4217, Search Folder: data/currnecy) would resolve to euro.xml
-    public static String xmlFileToXpathExpression(String xpath, String value, String searchFolder) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
-        String [] searchFiles = Util.listFiles(searchFolder);
-        for (int i=0; i<searchFiles.length; i++) {
-            if (Util.nodeListToString(Util.executeXPath(searchFolder+"/"+searchFiles[i],xpath)).equals(value)) {
-                return searchFiles[i];
+    public static File[] xmlFileToXpathExpression(String xpath, String value, File searchFolder, boolean recursive) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
+        ArrayList<File> foundFiles = new ArrayList<File>();
+        for (File scopeFile:searchFolder.listFiles()) {
+            if (scopeFile.isFile()) {
+                if (isValidXml(scopeFile)) {
+                    if (Util.nodeListToString(Util.executeXPath(scopeFile,xpath)).equals(value)) {
+                        foundFiles.add(scopeFile);
+                    }
+                }
+            }
+
+            if (scopeFile.isDirectory()) {
+                if (recursive) {
+                    Collections.addAll(foundFiles,xmlFileToXpathExpression(xpath, value, searchFolder, recursive));
+                }
             }
         }
-        return "";
+        return foundFiles.toArray(new File[foundFiles.size()]);
     }
 
     /**
      * <p>Formats a load String so it is valid</p>
-     * @param path
-     * @return
+     * @param path Path relative from Util-Class
+     * @return URL to the recourse
      */
     //Formats a load String so it is valid
     public static String createLoadString(String path) {
@@ -596,8 +539,8 @@ public class Util implements Serializable {
 
     /**
      * <p>Copys a file</p>
-     * @param source
-     * @param destination
+     * @param source Sourcefile
+     * @param destination Destination of copy
      * @throws IOException
      */
     public static void copy(File source, File destination) throws IOException {
@@ -638,6 +581,12 @@ public class Util implements Serializable {
         return true;
     }
 
+    /**
+     * <p>Downloads a file from the Internet</p>
+     * @param source URI to file
+     * @param target Local file to save to
+     * @throws IOException
+     */
     public static void download(URI source, File target) throws IOException {
         ReadableByteChannel rbc = Channels.newChannel(source.toURL().openStream());
         FileOutputStream fos = new FileOutputStream(target,false);
