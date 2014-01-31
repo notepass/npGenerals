@@ -1,6 +1,7 @@
 package de.notepass.general.java7addons.gui;
 
 import de.notepass.general.util.Util;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -15,17 +16,9 @@ import javafx.scene.layout.StackPane;
 public class GroupBox extends StackPane {
 
     /**
-     * Title position left trigger
+     * <p>Enum fur the Title Position</p>
      */
-    public static final TitlePos TITLE_POS_LEFT = TitlePos.POS_LEFT;
-    /**
-     * Title position center trigger
-     */
-    public static final TitlePos TITLE_POS_CENTER = TitlePos.POS_CENTER;
-    /**
-     * Title position right trigger
-     */
-    public static final TitlePos TITLE_POS_RIGHT = TitlePos.POS_RIGTH;
+    public static enum TitlePos{LEFT,CENTER,RIGHT};
 
     //The titePane will later just Contain the title and a basic markup
     /**
@@ -51,15 +44,27 @@ public class GroupBox extends StackPane {
     /**
      * <p>Setting up the GroupBox with its title and the title position</p>
      * @param titleString - Title of the GroupBox
-     * @param tp - Position of the title ({@link de.notepass.general.objects.gui.GroupBox#TITLE_POS_LEFT}, {@link de.notepass.general.objects.gui.GroupBox#TITLE_POS_CENTER}, {@link de.notepass.general.objects.gui.GroupBox#TITLE_POS_RIGHT})
+     * @param tp - Position of the title
      */
     public GroupBox (String titleString, TitlePos tp) {
+        Pos mainPos = Pos.TOP_CENTER;
+        String posString = "";
+
+        if (tp == TitlePos.LEFT) {
+            mainPos = Pos.TOP_LEFT;
+            posString = "-fx-translate-x: 10px;";
+        }
+
+        if (tp == TitlePos.RIGHT) {
+            mainPos = Pos.TOP_RIGHT;
+            posString = "-fx-translate-x: -10px;";
+        }
 
         title.setText(" "+titleString+" ");
         title.getStyleClass().add("GroupBoxTitle");
 
-        StackPane.setAlignment(title, tp.getMainPos());
-        title.setStyle(tp.getPosString());
+        StackPane.setAlignment(title, mainPos);
+        title.setStyle(posString);
 
         titlePane.getStyleClass().add("GroupBoxContent");
         titlePane.getChildren().add(contentPane);

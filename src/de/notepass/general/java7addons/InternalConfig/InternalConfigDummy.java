@@ -1,8 +1,6 @@
 package de.notepass.general.java7addons.InternalConfig;
 
 import de.notepass.general.java7addons.gui.GroupBox;
-import de.notepass.general.java7addons.gui.StatusBarItem;
-import de.notepass.general.java7addons.gui.TitleBar;
 import de.notepass.general.util.Util;
 import javafx.geometry.Insets;
 
@@ -16,7 +14,7 @@ public class InternalConfigDummy extends de.notepass.general.internalConfig.Inte
     /**
      * CSS-Files needed to be loaded for the new JavaFX-Elements
      */
-    final public static String[] CSS_FILES = {GroupBox.cssFile, StatusBarItem.cssFile, Util.createLoadString("style/General.css"), TitleBar.cssFile};
+    final public static String[] CSS_FILES = {GroupBox.cssFile, Util.createLoadString("style/General.css")};
 
     //GUI Configuration
     /**
