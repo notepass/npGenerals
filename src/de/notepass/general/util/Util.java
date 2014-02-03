@@ -26,6 +26,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Properties;
 
 import de.notepass.general.internalConfig.InternalConfigDummy;
 
@@ -326,7 +327,9 @@ public class Util implements Serializable {
      * @throws FileNotFoundException
      */
     //Saves a String as Textfile
-    public static void stringToTextfile(File file, String string) throws FileNotFoundException {
+    public static void stringToTextfile(File file, String string) throws IOException {
+        file.getParentFile().mkdirs();
+        file.createNewFile();
         PrintStream out = null;
         out = new PrintStream(new FileOutputStream(file));
         out.print(string);
@@ -591,6 +594,63 @@ public class Util implements Serializable {
         ReadableByteChannel rbc = Channels.newChannel(source.toURL().openStream());
         FileOutputStream fos = new FileOutputStream(target,false);
         fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+    }
+
+    /**
+     * <p>Read the main-Configuration from the Disk</p>
+     * @return Properties in the VisualProperties format
+     * @throws IOException
+     */
+    public static VisualProperties loadConfigurationFromDisk() throws IOException {
+        VisualProperties vprop = new VisualProperties();
+        vprop.loadFromFile(InternalConfigDummy.CONFIG_FILE);
+        return vprop;
+    }
+
+    /**
+     * <p>Writes the main Configuration to the disk</p>
+     * @param vprop
+     * @throws IOException
+     */
+    public static void saveConfigurationToDisk(VisualProperties vprop) throws IOException {
+        vprop.saveToFile(InternalConfigDummy.CONFIG_FILE);
+    }
+
+    /**
+     * <p>Generates a scratch-configuration</p>
+     * @return The default configuration
+     */
+    public static VisualProperties getDefaultConfigurationFile() {
+        VisualProperties vprops = new VisualProperties();
+        vprops.addComment("This is a configuration template. Log- & main-settings are maintained here.");
+        vprops.addComment("Log setting begin with \"log.\" the main setting begin with \"main.\"");
+        vprops.addEmptyLine();
+        vprops.addComment("===================== MAIN CONFIGURATION =====================#");
+        vprops.setProperty("main.langFile", "en_GB.properties");
+        vprops.addEmptyLine();
+        vprops.addEmptyLine();
+        vprops.addComment("===================== LOG CONFIGURATION =====================#");
+        vprops.addComment("his configuration XML will generate an Output like: [19.10.2013 20:14:17] Info: ==== STARTING SESSION ====");
+        vprops.addComment("(Relative) path for the log file");
+        vprops.setProperty("log.path", "data/log/log.log");
+        vprops.addEmptyLine();
+        vprops.addComment("What will be logged");
+        vprops.setProperty("log.debug", "false");
+        vprops.setProperty("log.info", "true");
+        vprops.setProperty("log.warn", "true");
+        vprops.setProperty("log.error","true");
+        vprops.addEmptyLine();
+        vprops.addComment("Text for Logging");
+        vprops.setProperty("log.debugText","Debug: ");
+        vprops.setProperty("log.infoText","Info: ");
+        vprops.setProperty("log.warnText","Warn: ");
+        vprops.setProperty("log.errorText","Error: ");
+        vprops.addEmptyLine();
+        vprops.addComment("Formatting settings for the Date/Time Output");
+        vprops.setProperty("log.dateTimeFormat","dd.MM.yyyy HH:mm:ss");
+        vprops.setProperty("log.dateTimePrefix","[");
+        vprops.setProperty("log.dateTimeSuffix","]");
+        return vprops;
     }
 
 }
