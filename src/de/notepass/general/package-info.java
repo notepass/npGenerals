@@ -1,4 +1,4 @@
 /**
- * <p>npGenerals package</p>
+ * <p>Main package for the npGenerals</p>
  */
 package de.notepass.general;
